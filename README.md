@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # DTA Dashboard - Major Digital Projects
 
 Interactive dashboard for tracking and visualizing major digital projects in the Australian government, based on the DTA (Digital Transformation Agency) dataset.
@@ -132,3 +133,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Built with Next.js and React
 - Charts powered by Recharts
 - Styling with Tailwind CSS
+=======
