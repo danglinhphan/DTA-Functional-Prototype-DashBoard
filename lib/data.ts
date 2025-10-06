@@ -1,103 +1,79 @@
 import { ProjectData } from '@/types/project';
-import fs from 'fs';
-import path from 'path';
+
+export interface OptimizedData {
+  projects: ProjectData[];
+  metadata: {
+    generatedAt: string;
+    totalProjects: number;
+    dataSources: Array<{
+      file: string;
+      count: number;
+      type: string;
+    }>;
+    lastUpdated: string;
+  };
+  aggregations: {
+    portfolios: string[];
+    agencies: string[];
+    tiers: string[];
+    deliveryStatuses: string[];
+    dcaLevels: string[];
+    totalBudget: number;
+    digitalBudget: number;
+    projectCount: number;
+  };
+}
+
+let cachedData: OptimizedData | null = null;
 
 export async function loadProjectData(): Promise<ProjectData[]> {
+  const data = await loadOptimizedData();
+  return data.projects;
+}
+
+export async function loadOptimizedData(): Promise<OptimizedData> {
+  // Return cached data if available
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
-    const allProjects: ProjectData[] = [];
-    
-    // Load dataset 1: mdpr-dataset-project-data-1.csv
-    const csvPath1 = path.join(process.cwd(), 'mdpr-dataset-project-data-1.csv');
-    if (fs.existsSync(csvPath1)) {
-      console.log('Loading mdpr-dataset-project-data-1.csv');
-      const projects1 = loadCSVFile(csvPath1);
-      allProjects.push(...projects1);
+    const response = await fetch('/data.json');
+    if (!response.ok) {
+      throw new Error('Failed to load data.json');
     }
     
-    // Load dataset 2: digital-project-data_v2.csv
-    const csvPath2 = path.join(process.cwd(), 'digital-project-data_v2.csv');
-    if (fs.existsSync(csvPath2)) {
-      console.log('Loading digital-project-data_v2.csv');
-      const projects2 = loadCSVFile(csvPath2);
-      allProjects.push(...projects2);
-    }
-    
-    if (allProjects.length === 0) {
-      console.log('No CSV files found, returning sample data');
-      return getSampleData();
-    }
-    
-    console.log(`Total projects loaded: ${allProjects.length}`);
-    return allProjects;
+    const data = await response.json();
+    cachedData = data; // Cache for subsequent calls
+    return data;
   } catch (error) {
-    console.error('Error loading project data:', error);
-    return getSampleData();
+    console.error('Error loading optimized data:', error);
+    return getFallbackData();
   }
 }
 
-function loadCSVFile(csvPath: string): ProjectData[] {
-  try {
-    const csvContent = fs.readFileSync(csvPath, 'utf-8');
-    const lines = csvContent.split('\n');
-    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-    
-    const records: ProjectData[] = [];
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      
-      const values = parseCSVLine(lines[i]);
-      const record: any = {};
-      
-      headers.forEach((header, index) => {
-        record[header] = values[index] || '';
-      });
-      
-      records.push({
-        Portfolio: record.Portfolio || '',
-        Agency: record.Agency || '',
-        Tier: record.Tier || 'Tier 3',
-        'Project name': record['Project name'] || '',
-        'DCA 2024': record['DCA 2024'] || '',
-        'DCA 2025': record['DCA 2025'] || '',
-        'Delivery status': record['Delivery status'] || 'Active',
-        'Total budget (millions)': parseFloat(record['Total budget (millions)']) || 0,
-        'Digital budget (millions)': parseFloat(record['Digital budget (millions)']) || 0,
-        'Project end date': record['Project end date'] || '',
-        'Project description': record['Project description'] || '',
-      });
-    }
-    
-    return records;
-  } catch (error) {
-    console.error(`Error loading ${csvPath}:`, error);
-    return [];
-  }
+export function getDCAColor(dca: string): string {
+  const dcaColors: Record<string, string> = {
+    'High': '#10b981',
+    'Medium-High': '#84cc16', 
+    'Medium': '#f59e0b',
+    'Medium-Low': '#f97316',
+    'Low': '#ef4444',
+    'Not reported': '#6b7280',
+    '': '#6b7280',
+  };
+  return dcaColors[dca] || '#6b7280';
 }
 
-function parseCSVLine(line: string): string[] {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
-  
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  
-  result.push(current.trim());
-  return result.map(item => item.replace(/^"|"$/g, ''));
+export function getDCARiskLevel(dca: string): 'healthy' | 'risk' | 'unknown' {
+  if (dca === 'High' || dca === 'Medium-High') return 'healthy';
+  if (dca === 'Low' || dca === 'Medium-Low') return 'risk';
+  return 'unknown';
 }
 
-function getSampleData(): ProjectData[] {
-  return [
+function getFallbackData(): OptimizedData {
+  return {
+    projects: [
     {
       Portfolio: "Attorney-General's",
       Agency: "Australian Criminal Intelligence Commission",
@@ -137,24 +113,22 @@ function getSampleData(): ProjectData[] {
       'Project end date': '30.06.2025',
       'Project description': 'The IMS is providing the Australian Federal Police (AFP) with the ability to manage investigative processes.'
     }
-  ];
-}
-
-export function getDCAColor(dca: string): string {
-  const dcaColors: Record<string, string> = {
-    'High': '#10b981',
-    'Medium-High': '#84cc16', 
-    'Medium': '#f59e0b',
-    'Medium-Low': '#f97316',
-    'Low': '#ef4444',
-    'Not reported': '#6b7280',
-    '': '#6b7280',
+    ],
+    metadata: {
+      generatedAt: new Date().toISOString(),
+      totalProjects: 3,
+      dataSources: [{ file: 'fallback', count: 3, type: 'fallback' }],
+      lastUpdated: new Date().toISOString()
+    },
+    aggregations: {
+      portfolios: ["Attorney-General's", "Agriculture, Fisheries and Forestry"],
+      agencies: ["Australian Criminal Intelligence Commission", "Department of Agriculture, Fisheries and Forestry", "Australian Federal Police"],
+      tiers: ["Tier 1", "Tier 2", "Tier 3"],
+      deliveryStatuses: ["Active"],
+      dcaLevels: ["Medium", "Medium-High", "High"],
+      totalBudget: 697.7,
+      digitalBudget: 608.5,
+      projectCount: 3
+    }
   };
-  return dcaColors[dca] || '#6b7280';
-}
-
-export function getDCARiskLevel(dca: string): 'healthy' | 'risk' | 'unknown' {
-  if (dca === 'High' || dca === 'Medium-High') return 'healthy';
-  if (dca === 'Low' || dca === 'Medium-Low') return 'risk';
-  return 'unknown';
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { ProjectData, FilterState } from '@/types/project';
+import { loadOptimizedData } from '@/lib/data';
 import KPIPanel from '@/components/KPIPanel';
 import FilterPanel from '@/components/FilterPanel';
 import DCAByTierChart from '@/components/DCAByTierChart';
@@ -28,49 +29,18 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  const loadData = async (forceRefresh = false) => {
+  const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const url = forceRefresh ? '/api/projects' : '/api/projects';
-      const method = forceRefresh ? 'POST' : 'GET';
-
-      const response = await fetch(url, {
-        method,
-        headers: forceRefresh ? { 'Content-Type': 'application/json' } : undefined
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const responseData = await response.json();
+      const optimizedData = await loadOptimizedData();
+      setData(optimizedData.projects);
       
-      // Handle different response structures
-      let projectsData;
-      if (forceRefresh && responseData.success) {
-        // For POST requests, we need to fetch the data again
-        const getResponse = await fetch('/api/projects');
-        if (!getResponse.ok) {
-          throw new Error(`HTTP error! status: ${getResponse.status}`);
-        }
-        projectsData = await getResponse.json();
-      } else {
-        projectsData = responseData;
-      }
-
-      // Ensure data is always an array
-      if (!Array.isArray(projectsData)) {
-        console.warn('Received non-array data, falling back to sample data');
-        setData(getSampleData());
-      } else {
-        setData(projectsData);
-      }
+      console.log('Data loaded:', optimizedData.metadata);
     } catch (error) {
       console.error('Error loading data:', error);
       setError(error instanceof Error ? error.message : 'Failed to load data');
-      // Fallback to sample data
       setData(getSampleData());
     } finally {
       setLoading(false);
@@ -116,16 +86,10 @@ export default function Dashboard() {
           <p className="text-gray-600 mb-4">{error}</p>
           <div className="space-y-2">
             <button
-              onClick={() => loadData(false)}
+              onClick={() => loadData()}
               className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Try Again
-            </button>
-            <button
-              onClick={() => loadData(true)}
-              className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Force Refresh
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-4">
@@ -200,13 +164,13 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center gap-2 lg:gap-3">
                   <button
-                    onClick={() => loadData(true)}
+                    onClick={() => loadData()}
                     disabled={loading}
                     className="px-3 py-2 lg:px-3 lg:py-1 text-sm lg:text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 min-h-[44px] lg:min-h-0"
-                    title="Refresh data from source"
+                    title="Reload data"
                   >
                     <span className="text-sm">🔄</span>
-                    <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
+                    <span className="hidden sm:inline">{loading ? 'Loading...' : 'Reload'}</span>
                   </button>
                   <div className="text-xs lg:text-xs text-gray-500 hidden sm:block">
                     Updated: {new Date().toLocaleDateString('en-AU')}
