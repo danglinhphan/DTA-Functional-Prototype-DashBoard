@@ -44,8 +44,28 @@ export default function Dashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const projectsData = await response.json();
-      setData(projectsData);
+      const responseData = await response.json();
+      
+      // Handle different response structures
+      let projectsData;
+      if (forceRefresh && responseData.success) {
+        // For POST requests, we need to fetch the data again
+        const getResponse = await fetch('/api/projects');
+        if (!getResponse.ok) {
+          throw new Error(`HTTP error! status: ${getResponse.status}`);
+        }
+        projectsData = await getResponse.json();
+      } else {
+        projectsData = responseData;
+      }
+
+      // Ensure data is always an array
+      if (!Array.isArray(projectsData)) {
+        console.warn('Received non-array data, falling back to sample data');
+        setData(getSampleData());
+      } else {
+        setData(projectsData);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
       setError(error instanceof Error ? error.message : 'Failed to load data');
@@ -57,6 +77,12 @@ export default function Dashboard() {
   };
 
   const filteredData = useMemo(() => {
+    // Ensure data is always an array before filtering
+    if (!Array.isArray(data)) {
+      console.warn('Data is not an array, returning empty array');
+      return [];
+    }
+    
     return data.filter(project => {
       return (
         (filters.portfolio.length === 0 || filters.portfolio.includes(project.Portfolio)) &&
