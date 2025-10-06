@@ -12,7 +12,7 @@ export default function ProjectTable({ data }: ProjectTableProps) {
   const [sortField, setSortField] = useState<keyof ProjectData>('Project name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Increased from 5 to 10
 
   const filteredData = data.filter(project =>
     project['Project name'].toLowerCase().includes(searchTerm.toLowerCase()) ||
