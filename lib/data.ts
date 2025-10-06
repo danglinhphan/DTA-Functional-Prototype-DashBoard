@@ -38,18 +38,33 @@ export async function loadProjectData(): Promise<ProjectData[]> {
 function loadCSVFile(csvPath: string): ProjectData[] {
   try {
     const csvContent = fs.readFileSync(csvPath, 'utf-8');
-    const lines = csvContent.split('\n');
-    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+    // Normalize and remove BOM if present
+    const normalized = csvContent.replace(/^\uFEFF/, '');
+
+    // Split into rows while respecting quoted fields that may contain newlines
+    const lines = splitCSVRows(normalized);
+    // Find the first non-empty line to use as headers
+    const headerLineIndex = lines.findIndex(l => l.trim().length > 0);
+    if (headerLineIndex === -1) return [];
+    const headers = parseCSVLine(lines[headerLineIndex]).map(h => h.replace(/"/g, '').trim());
     
     const records: ProjectData[] = [];
-    for (let i = 1; i < lines.length; i++) {
+    for (let i = headerLineIndex + 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-      
+
       const values = parseCSVLine(lines[i]);
       const record: any = {};
-      
+
+      // Normalize common 'not available' markers (e.g., 'N/A', 'NA') to empty string
+      const normalizeValue = (v: any) => {
+        if (v === undefined || v === null) return '';
+        const s = String(v).trim();
+        if (s.toUpperCase() === 'N/A' || s.toUpperCase() === 'NA') return '';
+        return s;
+      };
+
       headers.forEach((header, index) => {
-        record[header] = values[index] || '';
+        record[header] = normalizeValue(values[index] || '');
       });
       
       records.push({
@@ -94,6 +109,44 @@ function parseCSVLine(line: string): string[] {
   
   result.push(current.trim());
   return result.map(item => item.replace(/^"|"$/g, ''));
+}
+
+// Split CSV content into rows but don't split when inside quoted fields.
+function splitCSVRows(content: string): string[] {
+  const rows: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    const next = content[i + 1];
+
+    if (char === '"') {
+      // Toggle quote state. Handle escaped double-quotes by checking next char
+      if (inQuotes && next === '"') {
+        // Escaped quote, include one quote and skip the next
+        current += '"';
+        i++; // skip escaped quote
+        continue;
+      }
+      inQuotes = !inQuotes;
+      current += char;
+    } else if ((char === '\n' || (char === '\r' && next === '\n')) && !inQuotes) {
+      // End of row. If CRLF, consume both
+      // For CRLF sequence, consume '\r' here and let loop skip '\n' next iteration, so handle both
+      // Normalize: push current and clear
+      rows.push(current);
+      current = '';
+      if (char === '\r' && next === '\n') i++; // skip the LF char
+    } else {
+      current += char;
+    }
+  }
+
+  // push any remaining content as last row
+  if (current.length > 0) rows.push(current);
+
+  return rows;
 }
 
 function getSampleData(): ProjectData[] {

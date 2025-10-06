@@ -9,7 +9,6 @@ import BudgetByPortfolio from '@/components/BudgetByPortfolio';
 import CriticalProjectsTimeline from '@/components/CriticalProjectsTimeline';
 import DCAComparisonChart from '@/components/DCAComparisonChart';
 import ProjectTable from '@/components/ProjectTable';
-import './globals.css';
 
 export default function Dashboard() {
   const [data, setData] = useState<ProjectData[]>([]);
@@ -140,8 +139,8 @@ export default function Dashboard() {
       )}
 
       <div className="flex">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block w-64 bg-white border-r border-gray-200 overflow-y-auto">
+  {/* Desktop Sidebar */}
+  <div className="hidden lg:block w-52 bg-white border-r border-gray-200 overflow-y-auto">
           <div className="p-4">
             <FilterPanel
               data={data}
@@ -155,7 +154,7 @@ export default function Dashboard() {
         <div className="flex-1 min-w-0">
           {/* Header */}
           <header className="bg-white shadow-sm border-b sticky top-0 z-40">
-            <div className="px-4 sm:px-6 lg:px-8">
+            <div className="px-3 sm:px-4 lg:px-6">
               <div className="flex items-center justify-between h-14 lg:h-12">
                 <div className="flex items-center gap-3">
                   {/* Mobile Filter Button */}
@@ -190,32 +189,34 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <div className="p-3 lg:p-4 overflow-y-auto">
-            {/* KPI Section */}
-            <div className="mb-4 lg:mb-3">
-              <KPIPanel data={filteredData} />
-            </div>
-
-            {/* Charts Section - Mobile: Stack vertically, Desktop: Grid */}
-            <div className="space-y-4 lg:grid lg:grid-cols-4 lg:gap-3 lg:space-y-0 lg:mb-3">
-              {/* Critical Projects Timeline */}
-              <div className="lg:col-span-1">
-                <CriticalProjectsTimeline data={filteredData} />
+          <div className="p-1 lg:p-2 overflow-y-auto w-full min-w-0">
+            <div className="w-full px-1 sm:px-3 lg:px-4 min-w-0">
+              {/* KPI Section */}
+              <div className="mb-4 lg:mb-3">
+                <KPIPanel data={filteredData} />
               </div>
 
-              {/* Charts */}
-              <div className="lg:col-span-1">
-                <DCAByTierChart data={filteredData} />
-              </div>
-              <div className="lg:col-span-2">
-                <BudgetByPortfolio data={filteredData} />
-              </div>
-            </div>
+              {/* Charts Section - Mobile: Stack vertically, Desktop: Grid */}
+              <div className="space-y-4 lg:grid lg:grid-cols-4 lg:gap-3 lg:space-y-0 lg:mb-3">
+                {/* Critical Projects Timeline */}
+                <div className="lg:col-span-1">
+                  <CriticalProjectsTimeline data={filteredData} />
+                </div>
 
-            {/* Bottom Section - Mobile: Stack, Desktop: 2 columns */}
-            <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
-              <DCAComparisonChart data={filteredData} />
-              <ProjectTable data={filteredData} />
+                {/* Charts */}
+                <div className="lg:col-span-1">
+                  <DCAByTierChart data={filteredData} />
+                </div>
+                <div className="lg:col-span-2">
+                  <BudgetByPortfolio data={filteredData} />
+                </div>
+              </div>
+
+              {/* Bottom Section - Mobile: Stack, Desktop: 2 columns */}
+              <div className="space-y-4 lg:grid lg:grid-cols-[1fr_1.2fr] lg:gap-3 lg:space-y-0">
+                <DCAComparisonChart data={filteredData} />
+                <ProjectTable data={filteredData} />
+              </div>
             </div>
           </div>
         </div>
