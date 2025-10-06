@@ -268,11 +268,11 @@ export default function CriticalProjectsTimeline({ data }: CriticalProjectsTimel
   }
 
   return (
-    <div className="bg-white p-3 rounded-lg shadow">
-      <h3 className="text-md font-semibold text-gray-800 mb-2">
+    <div className="bg-white p-3 lg:p-3 rounded-lg shadow">
+      <h3 className="text-base lg:text-md font-semibold text-gray-800 mb-2">
         Critical Projects Timeline
       </h3>
-      <p className="text-xs text-gray-600 mb-3">DCA Low/Medium-Low projects organized by end date</p>
+      <p className="text-xs lg:text-xs text-gray-600 mb-3">DCA Low/Medium-Low projects organized by end date</p>
 
       {timelineData.length === 0 ? (
         <div className="h-64 flex items-center justify-center text-gray-500">
@@ -285,18 +285,18 @@ export default function CriticalProjectsTimeline({ data }: CriticalProjectsTimel
       ) : (
         <div className="space-y-4 max-h-72 overflow-y-auto">
           {/* Summary Stats */}
-          <div className="grid grid-cols-3 gap-2 text-center bg-gray-50 rounded p-2">
+          <div className="grid grid-cols-3 gap-2 text-center bg-gray-50 rounded p-3">
             <div>
-              <div className="text-lg font-bold text-red-600">{timelineData.filter(p => isOverdue(p.endDate)).length}</div>
-              <div className="text-xs text-gray-600">Overdue</div>
+              <div className="text-xl lg:text-lg font-bold text-red-600">{timelineData.filter(p => isOverdue(p.endDate)).length}</div>
+              <div className="text-sm lg:text-xs text-gray-600">Overdue</div>
             </div>
             <div>
-              <div className="text-lg font-bold text-orange-600">{timelineData.filter(p => isUpcoming(p.endDate)).length}</div>
-              <div className="text-xs text-gray-600">Next 90 Days</div>
+              <div className="text-xl lg:text-lg font-bold text-orange-600">{timelineData.filter(p => isUpcoming(p.endDate)).length}</div>
+              <div className="text-sm lg:text-xs text-gray-600">Next 90 Days</div>
             </div>
             <div>
-              <div className="text-lg font-bold text-gray-700">{timelineData.length}</div>
-              <div className="text-xs text-gray-600">Total Critical</div>
+              <div className="text-xl lg:text-lg font-bold text-gray-700">{timelineData.length}</div>
+              <div className="text-sm lg:text-xs text-gray-600">Total Critical</div>
             </div>
           </div>
 
@@ -308,14 +308,14 @@ export default function CriticalProjectsTimeline({ data }: CriticalProjectsTimel
             {quarterGroups.map(([quarter, projects], index) => (
               <div key={quarter} className="relative mb-6">
                 {/* Quarter marker */}
-                <div className="flex items-center mb-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow relative z-10"></div>
-                  <div className="ml-3 font-semibold text-sm text-gray-800">{quarter}</div>
-                  <div className="ml-2 text-xs text-gray-500">({projects.length} projects)</div>
+                <div className="flex items-center mb-3">
+                  <div className="w-4 h-4 lg:w-3 lg:h-3 bg-blue-500 rounded-full border-2 border-white shadow relative z-10"></div>
+                  <div className="ml-4 font-semibold text-base lg:text-sm text-gray-800">{quarter}</div>
+                  <div className="ml-2 text-sm lg:text-xs text-gray-500">({projects.length} projects)</div>
                 </div>
 
                 {/* Projects for this quarter */}
-                <div className="ml-6 space-y-2">
+                <div className="ml-8 lg:ml-6 space-y-3">
                   {projects.slice(0, 3).map((project, projIndex) => {
                     const isProjectOverdue = isOverdue(project.endDate);
                     const isProjectUpcoming = isUpcoming(project.endDate);
@@ -323,7 +323,7 @@ export default function CriticalProjectsTimeline({ data }: CriticalProjectsTimel
                     return (
                       <div
                         key={projIndex}
-                        className={`p-2 rounded border-l-4 ${
+                        className={`p-3 lg:p-2 rounded border-l-4 ${
                           isProjectOverdue
                             ? 'border-red-500 bg-red-50'
                             : isProjectUpcoming
@@ -333,38 +333,38 @@ export default function CriticalProjectsTimeline({ data }: CriticalProjectsTimel
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1 mb-1">
-                              <span className="text-sm">{getRiskIcon(project.dca)}</span>
-                              <span className="text-xs font-medium truncate" title={project.name}>
-                                {project.name.length > 30 ? project.name.substring(0, 27) + '...' : project.name}
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg lg:text-sm">{getRiskIcon(project.dca)}</span>
+                              <span className="text-sm lg:text-xs font-medium truncate" title={project.name}>
+                                {project.name.length > 25 ? project.name.substring(0, 22) + '...' : project.name}
                               </span>
                             </div>
-                            <div className="text-xs text-gray-600 truncate" title={project.portfolio}>
+                            <div className="text-sm lg:text-xs text-gray-600 truncate mb-2" title={project.portfolio}>
                               {project.portfolio}
                             </div>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2">
                               <span
-                                className="px-1.5 py-0.5 text-xs font-medium rounded text-white"
+                                className="px-2 py-1 lg:px-1.5 lg:py-0.5 text-sm lg:text-xs font-medium rounded text-white"
                                 style={{ backgroundColor: getDCAColor(project.dca) }}
                               >
                                 {project.dca}
                               </span>
-                              <span className="text-xs text-gray-500">
+                              <span className="text-sm lg:text-xs text-gray-500">
                                 ${project.budget.toFixed(1)}M
                               </span>
                             </div>
                           </div>
-                          <div className="text-right ml-2">
-                            <div className="text-xs text-gray-600">
+                          <div className="text-right ml-3">
+                            <div className="text-sm lg:text-xs text-gray-600 mb-1">
                               {project.dateStr}
                             </div>
                             {isProjectOverdue && (
-                              <div className="text-xs text-red-600 font-medium">
+                              <div className="text-sm lg:text-xs text-red-600 font-medium">
                                 Overdue
                               </div>
                             )}
                             {isProjectUpcoming && (
-                              <div className="text-xs text-orange-600 font-medium">
+                              <div className="text-sm lg:text-xs text-orange-600 font-medium">
                                 Upcoming
                               </div>
                             )}

@@ -22,6 +22,7 @@ export default function Dashboard() {
     deliveryStatus: [],
     dca2025: []
   });
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -110,68 +111,112 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Left Sidebar for Filters */}
-      <div className="w-56 bg-white border-r border-gray-200 p-3 overflow-y-auto">
-        <FilterPanel
-          data={data}
-          filters={filters}
-          onFiltersChange={setFilters}
-        />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-12">
-              <h1 className="text-xl font-bold text-gray-900">
-                DTA Digital Projects Overview Dashboard
-              </h1>
-              <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-gray-100">
+      {/* Mobile Filters Overlay */}
+      {isMobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileFiltersOpen(false)} />
+          <div className="absolute right-0 top-0 h-full w-80 max-w-[90vw] bg-white shadow-xl overflow-y-auto">
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
                 <button
-                  onClick={() => loadData(true)}
-                  disabled={loading}
-                  className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                  title="Refresh data from source"
+                  onClick={() => setIsMobileFiltersOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full"
                 >
-                  <span>🔄</span>
-                  {loading ? 'Refreshing...' : 'Refresh'}
+                  ✕
                 </button>
-                <div className="text-xs text-gray-500">
-                  Updated: {new Date().toLocaleDateString('en-AU')}
+              </div>
+            </div>
+            <div className="p-4">
+              <FilterPanel
+                data={data}
+                filters={filters}
+                onFiltersChange={setFilters}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex">
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block w-64 bg-white border-r border-gray-200 overflow-y-auto">
+          <div className="p-4">
+            <FilterPanel
+              data={data}
+              filters={filters}
+              onFiltersChange={setFilters}
+            />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 min-w-0">
+          {/* Header */}
+          <header className="bg-white shadow-sm border-b sticky top-0 z-40">
+            <div className="px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-14 lg:h-12">
+                <div className="flex items-center gap-3">
+                  {/* Mobile Filter Button */}
+                  <button
+                    onClick={() => setIsMobileFiltersOpen(true)}
+                    className="lg:hidden p-2 hover:bg-gray-100 rounded-md"
+                    aria-label="Open filters"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                    </svg>
+                  </button>
+                  <h1 className="text-lg lg:text-xl font-bold text-gray-900 truncate">
+                    DTA Digital Projects Dashboard
+                  </h1>
+                </div>
+                <div className="flex items-center gap-2 lg:gap-3">
+                  <button
+                    onClick={() => loadData(true)}
+                    disabled={loading}
+                    className="px-3 py-2 lg:px-3 lg:py-1 text-sm lg:text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 min-h-[44px] lg:min-h-0"
+                    title="Refresh data from source"
+                  >
+                    <span className="text-sm">🔄</span>
+                    <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
+                  </button>
+                  <div className="text-xs lg:text-xs text-gray-500 hidden sm:block">
+                    Updated: {new Date().toLocaleDateString('en-AU')}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <div className="p-3 overflow-y-auto h-full">
-          {/* KPI Section */}
-          <div className="mb-3">
-            <KPIPanel data={filteredData} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-3">
-            {/* Critical Projects Timeline - replacing old filter position */}
-            <div className="lg:col-span-1">
-              <CriticalProjectsTimeline data={filteredData} />
+          <div className="p-3 lg:p-4 overflow-y-auto">
+            {/* KPI Section */}
+            <div className="mb-4 lg:mb-3">
+              <KPIPanel data={filteredData} />
             </div>
 
-            {/* Charts Section */}
-            <div className="lg:col-span-1">
-              <DCAByTierChart data={filteredData} />
-            </div>
-            <div className="lg:col-span-2">
-              <BudgetByPortfolio data={filteredData} />
-            </div>
-          </div>
+            {/* Charts Section - Mobile: Stack vertically, Desktop: Grid */}
+            <div className="space-y-4 lg:grid lg:grid-cols-4 lg:gap-3 lg:space-y-0 lg:mb-3">
+              {/* Critical Projects Timeline */}
+              <div className="lg:col-span-1">
+                <CriticalProjectsTimeline data={filteredData} />
+              </div>
 
-          {/* Bottom Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            <DCAComparisonChart data={filteredData} />
-            <ProjectTable data={filteredData} />
+              {/* Charts */}
+              <div className="lg:col-span-1">
+                <DCAByTierChart data={filteredData} />
+              </div>
+              <div className="lg:col-span-2">
+                <BudgetByPortfolio data={filteredData} />
+              </div>
+            </div>
+
+            {/* Bottom Section - Mobile: Stack, Desktop: 2 columns */}
+            <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
+              <DCAComparisonChart data={filteredData} />
+              <ProjectTable data={filteredData} />
+            </div>
           </div>
         </div>
       </div>
