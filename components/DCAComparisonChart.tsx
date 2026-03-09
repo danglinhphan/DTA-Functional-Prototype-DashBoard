@@ -38,8 +38,8 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
         .filter(d => {
           try {
             return d && typeof d === 'object' &&
-                   d['DCA 2024'] && d['DCA 2025'] &&
-                   d['Project name'];
+              d['DCA 2025'] && d['DCA 2026'] &&
+              d['Project name'];
           } catch (err) {
             console.warn('Error filtering project:', err, d);
             return false;
@@ -55,8 +55,8 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
 
             return {
               name: displayName,
-              'DCA 2024': getDCAScore(project['DCA 2024']),
               'DCA 2025': getDCAScore(project['DCA 2025']),
+              'DCA 2026': getDCAScore(project['DCA 2026']),
               fullName: projectName,
               agency: (project.Agency || '').toString(),
             };
@@ -100,8 +100,8 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
         <div className="bg-white p-3 border border-gray-300 rounded shadow max-w-xs">
           <p className="font-medium text-sm">{data.fullName}</p>
           <p className="text-xs text-gray-600 mb-2">{data.agency}</p>
-          <p className="text-sm">DCA 2024: {getDCALabel(payload[0].value)}</p>
-          <p className="text-sm">DCA 2025: {getDCALabel(payload[1].value)}</p>
+          <p className="text-sm">DCA 2025: {getDCALabel(payload[0].value)}</p>
+          <p className="text-sm">DCA 2026: {getDCALabel(payload[1].value)}</p>
         </div>
       );
     }
@@ -134,7 +134,7 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
     return (
       <div className="bg-white p-3 rounded-lg shadow">
         <h3 className="text-md font-semibold text-gray-800 mb-2">
-          DCA Changes (2024 vs 2025)
+          DCA Changes (2025 vs 2026)
         </h3>
         <div className="h-96 bg-gray-200 rounded animate-pulse"></div>
       </div>
@@ -146,7 +146,7 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
     return (
       <div className="bg-white p-3 rounded-lg shadow">
         <h3 className="text-md font-semibold text-gray-800 mb-2">
-          DCA Changes (2024 vs 2025)
+          DCA Changes (2025 vs 2026)
         </h3>
         <div className="h-96 flex items-center justify-center">
           <div className="text-center">
@@ -170,13 +170,13 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
     return (
       <div className="bg-white p-3 rounded-lg shadow">
         <h3 className="text-md font-semibold text-gray-800 mb-2">
-          DCA Changes (2024 vs 2025)
+          DCA Changes (2025 vs 2026)
         </h3>
         <div className="h-96 flex items-center justify-center">
           <div className="text-center">
             <div className="text-xl mb-2">📊</div>
             <h4 className="text-sm font-semibold text-gray-800 mb-1">No Comparison Data</h4>
-            <p className="text-xs text-gray-600">No projects with both DCA 2024 and 2025 data available</p>
+            <p className="text-xs text-gray-600">No projects with both DCA 2025 and 2026 data available</p>
           </div>
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
   return (
     <div className="bg-white p-3 rounded-lg shadow">
       <h3 className="text-md font-semibold text-gray-800 mb-2">
-        DCA Changes (2024 vs 2025)
+        DCA Changes (2025 vs 2026)
       </h3>
       <ResponsiveContainer width="100%" height={600}>
         <BarChart
@@ -218,8 +218,8 @@ export default function DCAComparisonChart({ data }: DCAComparisonChartProps) {
               fontSize: '13px'
             }}
           />
-          <Bar dataKey="DCA 2024" fill="#94a3b8" name="DCA 2024" maxBarSize={35} />
-          <Bar dataKey="DCA 2025" fill="#1e40af" name="DCA 2025" maxBarSize={35} />
+          <Bar dataKey="DCA 2025" fill="#94a3b8" name="DCA 2025" maxBarSize={35} />
+          <Bar dataKey="DCA 2026" fill="#1e40af" name="DCA 2026" maxBarSize={35} />
         </BarChart>
       </ResponsiveContainer>
     </div>

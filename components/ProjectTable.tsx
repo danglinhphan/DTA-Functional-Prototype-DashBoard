@@ -77,8 +77,8 @@ export default function ProjectTable({ data }: ProjectTableProps) {
           const searchLower = searchTerm.toLowerCase();
 
           return projectName.includes(searchLower) ||
-                 agency.includes(searchLower) ||
-                 portfolio.includes(searchLower);
+            agency.includes(searchLower) ||
+            portfolio.includes(searchLower);
         } catch (err) {
           console.warn('Error filtering project:', err, project);
           return false;
@@ -256,48 +256,55 @@ export default function ProjectTable({ data }: ProjectTableProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto min-w-0 lg:overflow-x-visible">
-        <table className="w-full table-fixed min-w-0">
+      <div className="overflow-x-auto min-w-0">
+        <table className="w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th
-                className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-3/5"
+                className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                style={{ width: '30%' }}
                 onClick={() => handleSort('Project name')}
               >
                 Project Name {sortField === 'Project name' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th
-                className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-2/5"
+                className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                style={{ width: '20%' }}
                 onClick={() => handleSort('Agency')}
               >
                 Agency {sortField === 'Agency' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th
                 className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden sm:table-cell"
+                style={{ width: '10%' }}
                 onClick={() => handleSort('Tier')}
               >
                 Tier {sortField === 'Tier' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th
                 className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden md:table-cell"
-                onClick={() => handleSort('DCA 2025')}
+                style={{ width: '12%' }}
+                onClick={() => handleSort('DCA 2026')}
               >
-                DCA 2025 {sortField === 'DCA 2025' && (sortDirection === 'asc' ? '↑' : '↓')}
+                DCA 2026 {sortField === 'DCA 2026' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th
                 className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden lg:table-cell"
+                style={{ width: '10%' }}
                 onClick={() => handleSort('Delivery status')}
               >
                 Status {sortField === 'Delivery status' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th
                 className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden md:table-cell"
+                style={{ width: '10%' }}
                 onClick={() => handleSort('Digital budget (millions)')}
               >
                 Budget (M) {sortField === 'Digital budget (millions)' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th
                 className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden lg:table-cell"
+                style={{ width: '8%' }}
                 onClick={() => handleSort('Project end date')}
               >
                 End Date {sortField === 'Project end date' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -323,14 +330,13 @@ export default function ProjectTable({ data }: ProjectTableProps) {
                   </span>
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap hidden md:table-cell">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getDCAColor(project['DCA 2025'] || 'Not reported')}`}>
-                    {project['DCA 2025'] || 'Not reported'}
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getDCAColor(project['DCA 2026'] || 'Not reported')}`}>
+                    {project['DCA 2026'] || 'Not reported'}
                   </span>
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap hidden lg:table-cell">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    (project['Delivery status'] || '').toString() === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${(project['Delivery status'] || '').toString() === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {project['Delivery status'] || 'N/A'}
                   </span>
                 </td>

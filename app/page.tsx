@@ -19,7 +19,7 @@ export default function Dashboard() {
     agency: [],
     tier: [],
     deliveryStatus: [],
-    dca2025: []
+    dca2026: []
   });
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
@@ -45,7 +45,7 @@ export default function Dashboard() {
       }
 
       const responseData = await response.json();
-      
+
       // Handle different response structures
       let projectsData;
       if (forceRefresh && responseData.success) {
@@ -82,14 +82,14 @@ export default function Dashboard() {
       console.warn('Data is not an array, returning empty array');
       return [];
     }
-    
+
     return data.filter(project => {
       return (
         (filters.portfolio.length === 0 || filters.portfolio.includes(project.Portfolio)) &&
         (filters.agency.length === 0 || filters.agency.includes(project.Agency)) &&
         (filters.tier.length === 0 || filters.tier.includes(project.Tier)) &&
         (filters.deliveryStatus.length === 0 || filters.deliveryStatus.includes(project['Delivery status'])) &&
-        (filters.dca2025.length === 0 || filters.dca2025.includes(project['DCA 2025'] || 'Not reported'))
+        (filters.dca2026.length === 0 || filters.dca2026.includes(project['DCA 2026'] || 'Not reported'))
       );
     });
   }, [data, filters]);
@@ -165,8 +165,8 @@ export default function Dashboard() {
       )}
 
       <div className="flex">
-  {/* Desktop Sidebar */}
-  <div className="hidden lg:block w-52 bg-white border-r border-gray-200 overflow-y-auto">
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block w-52 bg-white border-r border-gray-200 overflow-y-auto">
           <div className="p-4">
             <FilterPanel
               data={data}
@@ -261,6 +261,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'National Criminal Intelligence System (NCIS)',
       'DCA 2024': 'Medium-High',
       'DCA 2025': 'Medium',
+      'DCA 2026': 'Medium',
       'Delivery status': 'Active',
       'Total budget (millions)': 373.7,
       'Digital budget (millions)': 373.7,
@@ -274,6 +275,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'Capital Security, Technology and Asset Refresh (CapSTAR)',
       'DCA 2024': '',
       'DCA 2025': 'Medium-High',
+      'DCA 2026': 'High',
       'Delivery status': 'Active',
       'Total budget (millions)': 279,
       'Digital budget (millions)': 189.8,
@@ -287,6 +289,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'Investigation Management Solution (IMS) Program',
       'DCA 2024': '',
       'DCA 2025': 'High',
+      'DCA 2026': 'High',
       'Delivery status': 'Active',
       'Total budget (millions)': 45,
       'Digital budget (millions)': 45,

@@ -20,7 +20,7 @@ export default function FilterPanel({ data, filters, onFiltersChange }: FilterPa
     setRetryCount(0);
   }, [data]);
 
-  const { portfolios, agencies, tiers, deliveryStatuses, dca2025Values } = useMemo(() => {
+  const { portfolios, agencies, tiers, deliveryStatuses, dca2026Values } = useMemo(() => {
     setIsProcessing(true);
     setError(null);
 
@@ -37,7 +37,7 @@ export default function FilterPanel({ data, filters, onFiltersChange }: FilterPa
           agencies: [],
           tiers: [],
           deliveryStatuses: [],
-          dca2025Values: []
+          dca2026Values: []
         };
       }
 
@@ -94,13 +94,13 @@ export default function FilterPanel({ data, filters, onFiltersChange }: FilterPa
           .filter(Boolean)
       )).sort();
 
-      const dca2025Values = Array.from(new Set(
+      const dca2026Values = Array.from(new Set(
         data
           .map(d => {
             try {
-              return d['DCA 2025'] || 'Not reported';
+              return d['DCA 2026'] || 'Not reported';
             } catch (err) {
-              console.warn('Error extracting DCA 2025:', err, d);
+              console.warn('Error extracting DCA 2026:', err, d);
               return 'Not reported';
             }
           })
@@ -108,7 +108,7 @@ export default function FilterPanel({ data, filters, onFiltersChange }: FilterPa
       )).sort();
 
       setIsProcessing(false);
-      return { portfolios, agencies, tiers, deliveryStatuses, dca2025Values };
+      return { portfolios, agencies, tiers, deliveryStatuses, dca2026Values };
     } catch (err) {
       console.error('Error processing filter data:', err);
       setError(err instanceof Error ? err.message : 'Failed to process filter data');
@@ -118,7 +118,7 @@ export default function FilterPanel({ data, filters, onFiltersChange }: FilterPa
         agencies: [],
         tiers: [],
         deliveryStatuses: [],
-        dca2025Values: []
+        dca2026Values: []
       };
     }
   }, [data, retryCount]);
@@ -259,21 +259,21 @@ export default function FilterPanel({ data, filters, onFiltersChange }: FilterPa
           </select>
         </div>
 
-        {/* DCA 2025 Filter */}
+        {/* DCA 2026 Filter */}
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">
-            DCA 2025
+            DCA 2026
           </label>
           <select
-            value={filters.dca2025[0] || ''}
+            value={filters.dca2026[0] || ''}
             onChange={(e) => onFiltersChange({
               ...filters,
-              dca2025: e.target.value ? [e.target.value] : []
+              dca2026: e.target.value ? [e.target.value] : []
             })}
             className="w-full border border-gray-300 rounded px-2 py-1 text-xs bg-white text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">All ({dca2025Values.length})</option>
-            {dca2025Values.map(dca => (
+            <option value="">All ({dca2026Values.length})</option>
+            {dca2026Values.map(dca => (
               <option key={dca} value={dca}>{dca}</option>
             ))}
           </select>
@@ -286,7 +286,7 @@ export default function FilterPanel({ data, filters, onFiltersChange }: FilterPa
             agency: [],
             tier: [],
             deliveryStatus: [],
-            dca2025: []
+            dca2026: []
           })}
           className="w-full bg-blue-50 text-blue-700 border border-blue-200 py-1 px-2 rounded text-xs hover:bg-blue-100 transition-colors font-medium"
         >

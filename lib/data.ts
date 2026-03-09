@@ -2,37 +2,110 @@ import { ProjectData } from '@/types/project';
 import fs from 'fs';
 import path from 'path';
 
+const DATA_GOV_AU_PACKAGE_ID = 'd41c5c1c-1bae-4871-af56-1eca5b340039';
+
 export async function loadProjectData(): Promise<ProjectData[]> {
   try {
+    // Try to load from API first
+    const apiProjects = await fetchProjectDataFromAPI();
+    if (apiProjects.length > 0) {
+      console.log(`Loaded ${apiProjects.length} projects from data.gov.au API`);
+      return apiProjects;
+    }
+
     const allProjects: ProjectData[] = [];
-    
-    // Load dataset 1: mdpr-dataset-project-data-1.csv
+
+    // Fallback to local datasets
     const csvPath1 = path.join(process.cwd(), 'mdpr-dataset-project-data-1.csv');
     if (fs.existsSync(csvPath1)) {
       console.log('Loading mdpr-dataset-project-data-1.csv');
       const projects1 = loadCSVFile(csvPath1);
       allProjects.push(...projects1);
     }
-    
-    // Load dataset 2: digital-project-data_v2.csv
+
     const csvPath2 = path.join(process.cwd(), 'digital-project-data_v2.csv');
     if (fs.existsSync(csvPath2)) {
       console.log('Loading digital-project-data_v2.csv');
       const projects2 = loadCSVFile(csvPath2);
       allProjects.push(...projects2);
     }
-    
+
     if (allProjects.length === 0) {
-      console.log('No CSV files found, returning sample data');
+      console.log('No data found, returning sample data');
       return getSampleData();
     }
-    
-    console.log(`Total projects loaded: ${allProjects.length}`);
+
     return allProjects;
   } catch (error) {
     console.error('Error loading project data:', error);
     return getSampleData();
   }
+}
+
+async function fetchProjectDataFromAPI(): Promise<ProjectData[]> {
+  try {
+    const response = await fetch(`https://data.gov.au/data/api/3/action/package_show?id=${DATA_GOV_AU_PACKAGE_ID}`);
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    if (!data.success) return [];
+
+    // Find the Project Data CSV resource
+    const csvResource = data.result.resources.find((r: any) =>
+      r.name.includes('Project Data') && r.format.toLowerCase() === '.csv'
+    );
+
+    if (!csvResource) return [];
+
+    const csvResponse = await fetch(csvResource.url);
+    if (!csvResponse.ok) return [];
+
+    const csvContent = await csvResponse.text();
+    return parseCSVContent(csvContent);
+  } catch (error) {
+    console.error('API Fetch error:', error);
+    return [];
+  }
+}
+
+function parseCSVContent(csvContent: string): ProjectData[] {
+  // Normalize and remove BOM
+  const normalized = csvContent.replace(/^\uFEFF/, '');
+  const lines = splitCSVRows(normalized);
+  const headerLineIndex = lines.findIndex(l => l.trim().length > 0);
+  if (headerLineIndex === -1) return [];
+
+  const headers = parseCSVLine(lines[headerLineIndex]).map(h => h.replace(/"/g, '').trim());
+
+  const records: ProjectData[] = [];
+  for (let i = headerLineIndex + 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+
+    const values = parseCSVLine(lines[i]);
+    const record: any = {};
+
+    headers.forEach((header, index) => {
+      let val = (values[index] || '').trim().replace(/"/g, '');
+      if (val.toUpperCase() === 'N/A' || val.toUpperCase() === 'NA') val = '';
+      record[header] = val;
+    });
+
+    records.push({
+      Portfolio: record.Portfolio || '',
+      Agency: record.Agency || '',
+      Tier: record.Tier || 'Tier 3',
+      'Project name': record['Project name'] || '',
+      'DCA 2024': record['DCA 2024'] || record['DCA 2025'] || '',
+      'DCA 2025': record['DCA 2025'] || '',
+      'DCA 2026': record['DCA 2026'] || '',
+      'Delivery status': record['Delivery status'] || 'Active',
+      'Total budget (millions)': parseFloat(record['Total budget (millions)']) || 0,
+      'Digital budget (millions)': parseFloat(record['Digital budget (millions)']) || 0,
+      'Project end date': record['Project end date'] || '',
+      'Project description': record['Project description'] || '',
+    });
+  }
+  return records;
 }
 
 function loadCSVFile(csvPath: string): ProjectData[] {
@@ -47,7 +120,7 @@ function loadCSVFile(csvPath: string): ProjectData[] {
     const headerLineIndex = lines.findIndex(l => l.trim().length > 0);
     if (headerLineIndex === -1) return [];
     const headers = parseCSVLine(lines[headerLineIndex]).map(h => h.replace(/"/g, '').trim());
-    
+
     const records: ProjectData[] = [];
     for (let i = headerLineIndex + 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
@@ -66,7 +139,7 @@ function loadCSVFile(csvPath: string): ProjectData[] {
       headers.forEach((header, index) => {
         record[header] = normalizeValue(values[index] || '');
       });
-      
+
       records.push({
         Portfolio: record.Portfolio || '',
         Agency: record.Agency || '',
@@ -74,6 +147,7 @@ function loadCSVFile(csvPath: string): ProjectData[] {
         'Project name': record['Project name'] || '',
         'DCA 2024': record['DCA 2024'] || '',
         'DCA 2025': record['DCA 2025'] || '',
+        'DCA 2026': record['DCA 2026'] || '',
         'Delivery status': record['Delivery status'] || 'Active',
         'Total budget (millions)': parseFloat(record['Total budget (millions)']) || 0,
         'Digital budget (millions)': parseFloat(record['Digital budget (millions)']) || 0,
@@ -81,7 +155,7 @@ function loadCSVFile(csvPath: string): ProjectData[] {
         'Project description': record['Project description'] || '',
       });
     }
-    
+
     return records;
   } catch (error) {
     console.error(`Error loading ${csvPath}:`, error);
@@ -93,10 +167,10 @@ function parseCSVLine(line: string): string[] {
   const result = [];
   let current = '';
   let inQuotes = false;
-  
+
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
-    
+
     if (char === '"') {
       inQuotes = !inQuotes;
     } else if (char === ',' && !inQuotes) {
@@ -106,7 +180,7 @@ function parseCSVLine(line: string): string[] {
       current += char;
     }
   }
-  
+
   result.push(current.trim());
   return result.map(item => item.replace(/^"|"$/g, ''));
 }
@@ -158,6 +232,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'National Criminal Intelligence System (NCIS)',
       'DCA 2024': 'Medium-High',
       'DCA 2025': 'Medium',
+      'DCA 2026': 'Medium',
       'Delivery status': 'Active',
       'Total budget (millions)': 373.7,
       'Digital budget (millions)': 373.7,
@@ -171,6 +246,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'Capital Security, Technology and Asset Refresh (CapSTAR)',
       'DCA 2024': '',
       'DCA 2025': 'Medium-High',
+      'DCA 2026': 'High',
       'Delivery status': 'Active',
       'Total budget (millions)': 279,
       'Digital budget (millions)': 189.8,
@@ -184,6 +260,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'Investigation Management Solution (IMS) Program',
       'DCA 2024': '',
       'DCA 2025': 'High',
+      'DCA 2026': 'High',
       'Delivery status': 'Active',
       'Total budget (millions)': 45,
       'Digital budget (millions)': 45,
@@ -196,7 +273,7 @@ function getSampleData(): ProjectData[] {
 export function getDCAColor(dca: string): string {
   const dcaColors: Record<string, string> = {
     'High': '#10b981',
-    'Medium-High': '#84cc16', 
+    'Medium-High': '#84cc16',
     'Medium': '#f59e0b',
     'Medium-Low': '#f97316',
     'Low': '#ef4444',

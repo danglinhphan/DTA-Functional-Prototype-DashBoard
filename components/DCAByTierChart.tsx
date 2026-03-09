@@ -54,7 +54,7 @@ export default function DCAByTierChart({ data }: DCAByTierChartProps) {
             try {
               dcaCounts[level] = tierProjects.filter(p => {
                 try {
-                  return p && typeof p === 'object' && p['DCA 2025'] === level;
+                  return p && typeof p === 'object' && p['DCA 2026'] === level;
                 } catch (err) {
                   console.warn('Error filtering project by DCA level:', err, p);
                   return false;
