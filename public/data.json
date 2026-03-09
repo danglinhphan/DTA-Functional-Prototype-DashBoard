@@ -1770,7 +1770,7 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-03-09T09:22:13.689Z",
+    "generatedAt": "2026-03-09T09:26:32.523Z",
     "totalProjects": 136,
     "dataSources": [
       {
@@ -1784,7 +1784,7 @@
         "type": "csv"
       }
     ],
-    "lastUpdated": "2026-03-09T09:22:13.697Z"
+    "lastUpdated": "2026-03-09T09:26:32.530Z"
   },
   "aggregations": {
     "portfolios": [
