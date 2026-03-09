@@ -1,136 +1,77 @@
-<<<<<<< HEAD
-# DTA Dashboard - Major Digital Projects
+# DTA Digital Projects Dashboard - Prototype
 
-Interactive dashboard for tracking and visualizing major digital projects in the Australian government, based on the DTA (Digital Transformation Agency) dataset.
+An interactive, high-performance dashboard for tracking and visualizing major digital projects across the Australian Government. This prototype integrates live data from the **Major Digital Projects Report (MDPR) 2026** via the `data.gov.au` API.
 
-## Features
+## Architecture Overview
 
-### 📊 KPI Dashboard
-- **Total Active Projects**: Real-time count of ongoing projects
-- **Total Digital Budget**: Aggregated budget in billions
-- **High-Risk Projects**: Projects with Low/Medium-Low DCA ratings
-- **Healthy Tier 1&2 Projects**: Percentage of critical projects with High/Medium-High DCA
+The prototype is built as a **Modern Static Web Application** using Next.js, ensuring high speed, low cost, and easy portability.
 
-### 🎯 Interactive Filters
-- **Portfolio**: Filter by government portfolio
-- **Agency**: Filter by specific agencies
-- **Tier**: Filter by project importance (Tier 1, 2, 3)
-- **Delivery Status**: Active vs Closed projects
-- **DCA 2025**: Filter by Delivery Confidence Assessment levels
+### Core Structure
+- **Frontend Framework**: [Next.js 14](https://nextjs.org/) (App Router) for a robust, component-based architecture.
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) for a sleek, responsive, and performance-optimized UI.
+- **Charts & Visualization**: [Recharts](https://recharts.org/) for interactive and accessible data visualization.
+- **Icons**: [Lucide React](https://lucide.dev/) for consistent, clean iconography.
 
-### 📈 Visualizations
-1. **DCA Distribution by Tier**: Stacked bar chart showing confidence levels across project tiers
-2. **Budget Allocation by Portfolio**: Treemap visualization of budget distribution
-3. **DCA Change Tracking**: Comparative analysis of DCA changes from 2024 to 2025
-4. **Project Details Table**: Searchable and sortable table with full project information
-
-## Tech Stack
-
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Charts**: Recharts
-- **Data**: CSV parsing with fallback to sample data
+### Data Layer (`lib/data.ts`)
+The application implements a "Live-First" data strategy:
+1. **API Integration**: Fetches the latest project data directly from the [data.gov.au](https://data.gov.au) CKAN API at runtime.
+2. **Dynamic Processing**: Automatically parses CSV data, normalizes project fields, and pre-computes aggregations (Total Budget, DCA Distribution) on the client side.
+3. **Resilient Fallback**: Includes built-in sample data to ensure the UI remains functional even if the external API is unreachable.
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- [Node.js](https://nodejs.org/) (Version 18.0 or higher)
+- [npm](https://www.npmjs.com/) (Standard Node Package Manager)
 
-### Installation
-
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-2. **Place your data file**:
-   - Copy `mdpr-dataset-project-data-1.csv` to the root directory
-   - The app will use sample data if the file is not found
-
-3. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**:
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-### Build for production
-
+### Local Development
+To run the dashboard in development mode with hot-reloading:
 ```bash
-npm run build
-npm start
+npm install
+npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Data Structure
+### Testing the Production Prototype (Recommended)
+Since this dashboard is optimized for **Static Export**, follow these steps to test the final production build locally:
 
-The dashboard expects CSV data with the following columns:
-- `Portfolio`: Government portfolio
-- `Agency`: Responsible agency
-- `Tier`: Project tier (Tier 1, Tier 2, Tier 3)
-- `Project name`: Full project name
-- `DCA 2024`: Delivery confidence assessment for 2024
-- `DCA 2025`: Delivery confidence assessment for 2025
-- `Delivery status`: Active or Closed
-- `Total budget (millions)`: Total project budget
-- `Digital budget (millions)`: Digital component budget
-- `Project end date`: Expected completion date
-- `Project description`: Full project description
+1. **Build the project**:
+   ```bash
+   npm run build
+   ```
+   *This command compiles the app and generates a static `out/` directory.*
 
-## DCA (Delivery Confidence Assessment) Levels
+2. **Serve the static files**:
+   ```bash
+   # Run a lightweight local server to serve the exported files
+   npx serve@latest out
+   ```
 
-- **High** 🟢: Project on track with high confidence
-- **Medium-High** 🟡: Generally positive outlook
-- **Medium** 🟠: Some concerns but manageable
-- **Medium-Low** 🔴: Significant risks identified
-- **Low** 🔴: High risk of failure or major issues
+3. **View the Dashboard**:
+   Once running, the terminal will provide a URL (usually `http://localhost:3000`).
 
-## Usage
+## UI Features & Functionality
 
-1. **Overview**: Start with the KPI panel to get high-level metrics
-2. **Filter**: Use the sidebar filters to focus on specific portfolios, agencies, or project types
-3. **Analyze**: Examine the visualizations to identify trends and risk patterns
-4. **Detail**: Use the project table for detailed information and search functionality
-5. **Compare**: Track DCA changes to identify improving or deteriorating projects
+### 1. KPI Insight Panel
+- Real-time aggregation of active project counts.
+- Total digital budget tracking in AUD billions.
+- Risk monitoring (High-Risk projects with Low/Medium-Low DCA ratings).
 
-## Customization
+### 2. Analytical Visualizations
+- **DCA Confidence Level Distribution**: Breakdown of risk assessments (DCA 2026) by Project Tier.
+- **Budget Allocation by Portfolio**: Hierarchy of investment across government sectors.
+- **DCA Changes (2025 vs 2026)**: Comparative analysis showing improving or deteriorating risk trends.
 
-### Colors
-DCA colors are defined in `tailwind.config.js` and can be customized:
-```javascript
-colors: {
-  'dca-high': '#10b981',      // Green
-  'dca-medium-high': '#84cc16', // Light green
-  'dca-medium': '#f59e0b',    // Yellow
-  'dca-medium-low': '#f97316', // Orange
-  'dca-low': '#ef4444',       // Red
-}
-```
+### 3. Smart Project Table
+- **Flexible Layout**: Fixes for column overlapping on high-density data.
+- **Search & Sort**: Instant filtering and ordering by project name, budget, or DCA level.
+- **DCA 2026 Visualization**: Direct visibility into current and previous assessments.
 
-### Charts
-Charts use Recharts and can be customized in their respective component files:
-- `components/DCAByTierChart.tsx`
-- `components/BudgetByPortfolio.tsx`
-- `components/DCAComparisonChart.tsx`
+## Deployment
+As a static application, this prototype can be hosted for free on:
+- **GitHub Pages**
+- **Vercel** (using Static Export)
+- **AWS S3 / Azure Static Web Apps**
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Data provided by the Australian Digital Transformation Agency (DTA)
-- Built with Next.js and React
-- Charts powered by Recharts
-- Styling with Tailwind CSS
-=======
+---
+*Created for the DTA Capstone Project - Functional Prototype (Final Revision).*
