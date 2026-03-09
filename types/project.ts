@@ -6,6 +6,7 @@ export interface ProjectData {
   'Project name': string;
   'DCA 2024': string;
   'DCA 2025': string;
+  'DCA 2026': string;
   'Delivery status': 'Active' | 'Closed';
   'Total budget (millions)': number;
   'Digital budget (millions)': number;
@@ -20,7 +21,7 @@ export interface FilterState {
   agency: string[];
   tier: string[];
   deliveryStatus: string[];
-  dca2025: string[];
+  dca2026: string[];
 }
 
 export interface KPIData {

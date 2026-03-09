@@ -10,7 +10,6 @@ import BudgetByPortfolio from '@/components/BudgetByPortfolio';
 import CriticalProjectsTimeline from '@/components/CriticalProjectsTimeline';
 import DCAComparisonChart from '@/components/DCAComparisonChart';
 import ProjectTable from '@/components/ProjectTable';
-import './globals.css';
 
 export default function Dashboard() {
   const [data, setData] = useState<ProjectData[]>([]);
@@ -21,7 +20,7 @@ export default function Dashboard() {
     agency: [],
     tier: [],
     deliveryStatus: [],
-    dca2025: []
+    dca2026: []
   });
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
@@ -36,7 +35,7 @@ export default function Dashboard() {
 
       const optimizedData = await loadOptimizedData();
       setData(optimizedData.projects);
-      
+
       console.log('Data loaded:', optimizedData.metadata);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -53,14 +52,14 @@ export default function Dashboard() {
       console.warn('Data is not an array, returning empty array');
       return [];
     }
-    
+
     return data.filter(project => {
       return (
         (filters.portfolio.length === 0 || filters.portfolio.includes(project.Portfolio)) &&
         (filters.agency.length === 0 || filters.agency.includes(project.Agency)) &&
         (filters.tier.length === 0 || filters.tier.includes(project.Tier)) &&
         (filters.deliveryStatus.length === 0 || filters.deliveryStatus.includes(project['Delivery status'])) &&
-        (filters.dca2025.length === 0 || filters.dca2025.includes(project['DCA 2025'] || 'Not reported'))
+        (filters.dca2026.length === 0 || filters.dca2026.includes(project['DCA 2026'] || 'Not reported'))
       );
     });
   }, [data, filters]);
@@ -131,7 +130,7 @@ export default function Dashboard() {
 
       <div className="flex">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block w-64 bg-white border-r border-gray-200 overflow-y-auto">
+        <div className="hidden lg:block w-52 bg-white border-r border-gray-200 overflow-y-auto">
           <div className="p-4">
             <FilterPanel
               data={data}
@@ -145,7 +144,7 @@ export default function Dashboard() {
         <div className="flex-1 min-w-0">
           {/* Header */}
           <header className="bg-white shadow-sm border-b sticky top-0 z-40">
-            <div className="px-4 sm:px-6 lg:px-8">
+            <div className="px-3 sm:px-4 lg:px-6">
               <div className="flex items-center justify-between h-14 lg:h-12">
                 <div className="flex items-center gap-3">
                   {/* Mobile Filter Button */}
@@ -180,32 +179,34 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <div className="p-3 lg:p-4 overflow-y-auto">
-            {/* KPI Section */}
-            <div className="mb-4 lg:mb-3">
-              <KPIPanel data={filteredData} />
-            </div>
-
-            {/* Charts Section - Mobile: Stack vertically, Desktop: Grid */}
-            <div className="space-y-4 lg:grid lg:grid-cols-4 lg:gap-3 lg:space-y-0 lg:mb-3">
-              {/* Critical Projects Timeline */}
-              <div className="lg:col-span-1">
-                <CriticalProjectsTimeline data={filteredData} />
+          <div className="p-1 lg:p-2 overflow-y-auto w-full min-w-0">
+            <div className="w-full px-1 sm:px-3 lg:px-4 min-w-0">
+              {/* KPI Section */}
+              <div className="mb-4 lg:mb-3">
+                <KPIPanel data={filteredData} />
               </div>
 
-              {/* Charts */}
-              <div className="lg:col-span-1">
-                <DCAByTierChart data={filteredData} />
-              </div>
-              <div className="lg:col-span-2">
-                <BudgetByPortfolio data={filteredData} />
-              </div>
-            </div>
+              {/* Charts Section - Mobile: Stack vertically, Desktop: Grid */}
+              <div className="space-y-4 lg:grid lg:grid-cols-4 lg:gap-3 lg:space-y-0 lg:mb-3">
+                {/* Critical Projects Timeline */}
+                <div className="lg:col-span-1">
+                  <CriticalProjectsTimeline data={filteredData} />
+                </div>
 
-            {/* Bottom Section - Mobile: Stack, Desktop: 2 columns */}
-            <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
-              <DCAComparisonChart data={filteredData} />
-              <ProjectTable data={filteredData} />
+                {/* Charts */}
+                <div className="lg:col-span-1">
+                  <DCAByTierChart data={filteredData} />
+                </div>
+                <div className="lg:col-span-2">
+                  <BudgetByPortfolio data={filteredData} />
+                </div>
+              </div>
+
+              {/* Bottom Section - Mobile: Stack, Desktop: 2 columns */}
+              <div className="space-y-4 lg:grid lg:grid-cols-[1fr_1.2fr] lg:gap-3 lg:space-y-0">
+                <DCAComparisonChart data={filteredData} />
+                <ProjectTable data={filteredData} />
+              </div>
             </div>
           </div>
         </div>
@@ -224,6 +225,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'National Criminal Intelligence System (NCIS)',
       'DCA 2024': 'Medium-High',
       'DCA 2025': 'Medium',
+      'DCA 2026': 'Medium',
       'Delivery status': 'Active',
       'Total budget (millions)': 373.7,
       'Digital budget (millions)': 373.7,
@@ -237,6 +239,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'Capital Security, Technology and Asset Refresh (CapSTAR)',
       'DCA 2024': '',
       'DCA 2025': 'Medium-High',
+      'DCA 2026': 'High',
       'Delivery status': 'Active',
       'Total budget (millions)': 279,
       'Digital budget (millions)': 189.8,
@@ -250,6 +253,7 @@ function getSampleData(): ProjectData[] {
       'Project name': 'Investigation Management Solution (IMS) Program',
       'DCA 2024': '',
       'DCA 2025': 'High',
+      'DCA 2026': 'High',
       'Delivery status': 'Active',
       'Total budget (millions)': 45,
       'Digital budget (millions)': 45,
